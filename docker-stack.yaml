@@ -1,0 +1,142 @@
+---
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_USER: ${MYSQL_USER}
+      MARIADB_PASSWORD: "${MYSQL_PASSWORD}"
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+    networks:
+      - ghost
+    volumes:
+      - db_data:/var/lib/mysql
+      - backups:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    labels:
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump ${MYSQL_DATABASE} > /docker-entrypoint-initdb.d/${SERVICE_ID}-${MYSQL_DATABASE}.sql'
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  ghost:
+    image: ghcr.io/coto-studio/ghost-s3:latest
+    networks:
+      - ghost
+      - traefik-public
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      url: "https://${GHOST_DOMAIN}/"
+      database__client: mysql
+      database__connection__host: db
+      database__connection__port: ${MYSQL_PORT:-3306}
+      database__connection__user: ${MYSQL_USER}
+      database__connection__password: ${MYSQL_PASSWORD}
+      database__connection__database: ${MYSQL_DATABASE}
+      mail__transport: SMTP
+      mail__options__service: ${MAIL_SERVICE}
+      mail__options__host: ${MAIL_HOST}
+      mail__options__port: ${MAIL_PORT}
+      mail__options__secure: "true"
+      mail__options__auth__user: ${MAIL_USER}
+      mail__options__auth__pass: ${MAIL_PASS}
+      storage__active: s3
+      storage__s3__accessKeyId: ${STORAGE_ACCESS_KEY_ID}
+      storage__s3__secretAccessKey: ${STORAGE_SECRET_ACCESS_KEY}
+      storage__s3__assetHost: ${STORAGE_ASSET_HOST}
+      storage__s3__bucket: ${STORAGE_BUCKET}
+      storage__s3__endpoint: ${STORAGE_ENDPOINT}
+    depends_on:
+      - db
+    deploy:
+      update_config:
+        order: start-first
+      labels:
+        - "com.centurylinklabs.watchtower.enable=true"
+        # Enable Traefik
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik-public"
+        - "traefik.constraint-label=traefik-public"
+        # Ghost Config
+        - "traefik.http.services.${SERVICE_ID}-ghost.loadbalancer.server.port=2368"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-http.rule=Host(`${GHOST_DOMAIN}`)"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-http.entrypoints=http"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-http.middlewares=https-redirect"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-https.rule=Host(`${GHOST_DOMAIN}`)"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-https.entrypoints=https"
+        - "traefik.http.routers.${SERVICE_ID}-ghost-https.tls.certresolver=le"
+        # www Redirect
+        - "traefik.http.routers.${SERVICE_ID}-https.middlewares=${SERVICE_ID}-www-redirect"
+        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.regex=^https?://www.${GHOST_DOMAIN}/(.*)"
+        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.replacement=https://${GHOST_DOMAIN}/$${1}"
+        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.permanent=true"
+
+  proxy:
+    image: ghcr.io/coto-studio/b2-proxy:latest
+    environment:
+      B2_KEY_ID: ${STORAGE_ACCESS_KEY_ID}
+      B2_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY}
+      B2_BUCKET: ${STORAGE_BUCKET}
+      B2_REGION: ${STORAGE_REGION}
+      CACHE_RAM: 10m
+      CACHE_DISK: 2g
+      CACHE_INACTIVITY: 1h
+      CACHE_MAX_AGE: 3600
+      MAX_CONNECTIONS_PER_IP: 20
+      DEBUG_UUID: debug
+    volumes:
+      - cache:/var/cache/nginx
+    networks:
+      - traefik-public
+    deploy:
+      labels:
+        - "com.centurylinklabs.watchtower.enable=true"
+        # Enable Traefik
+        - "traefik.enable=true"
+        - "traefik.docker.network=traefik-public"
+        - "traefik.constraint-label=traefik-public"
+        # Proxy Config
+        - "traefik.http.services.${SERVICE_ID}-s3.loadbalancer.server.port=80"
+        - "traefik.http.routers.${SERVICE_ID}-s3-http.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${SERVICE_ID}-s3-http.entrypoints=http"
+        - "traefik.http.routers.${SERVICE_ID}-s3-http.middlewares=https-redirect"
+        - "traefik.http.routers.${SERVICE_ID}-s3-https.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${SERVICE_ID}-s3-https.entrypoints=https"
+        - "traefik.http.routers.${SERVICE_ID}-s3-https.tls.certresolver=le"
+
+  backup:
+    image: ghcr.io/offen/docker-volume-backup:v2
+    volumes:
+      - backups:/backups:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits:
+          memory: 100M
+    environment:
+      BACKUP_SOURCES: "/backups"
+      AWS_S3_PATH: "backups/"
+      AWS_S3_BUCKET_NAME: ${STORAGE_BUCKET}
+      AWS_ACCESS_KEY_ID: ${STORAGE_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${STORAGE_SECRET_ACCESS_KEY}
+      AWS_ENDPOINT: ${STORAGE_ENDPOINT}
+      GPG_PASSPHRASE: ${STORAGE_GPG_PASSPHRASE}
+      NOTIFICATION_URLS: "pushover://shoutrrr:${PUSHOVER_API_TOKEN}@${PUSHOVER_USER_KEY}/"
+      NOTIFICATION_LEVEL: "info"
+      BACKUP_RETENTION_DAYS: "7"
+      BACKUP_PRUNING_LEEWAY: "30s"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+volumes:
+  db_data:
+  backups:
+  cache:
+
+networks:
+  ghost:
+  traefik-public:
+    external: true
