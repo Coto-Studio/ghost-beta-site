@@ -20,3 +20,4 @@ jobs:
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
       image-name: ghcr.io/coto-studio/ghost-s3
       stack-name: coto-studio
+      repo-name: coto-studio/ghost-beta-site
