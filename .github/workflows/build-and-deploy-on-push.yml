@@ -12,7 +12,8 @@ jobs:
   cs-ghost-docker-deploy:
     name: CS Workflow
     uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
-    secrets: inherit
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     with:
       vault-id: op://Coto.Studio - Clients
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
