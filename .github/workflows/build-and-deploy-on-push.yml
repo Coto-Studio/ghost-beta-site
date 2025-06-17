@@ -1,4 +1,4 @@
-name: Build, and Deploy on Push
+name: Ghost Site - Build & Deploy on Push
 
 on:
   push:
@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   cs-ghost-docker-deploy:
-    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
+    name: CS Workflow
+    uses: ./.github/workflows/ghost-image-build-and-deploy.yml
     secrets: inherit
     with:
       vault-id: op://Coto.Studio - Clients
