@@ -19,8 +19,7 @@ services:
       timeout: 5s
       retries: 3
     labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump ${MYSQL_DATABASE} > /docker-entrypoint-initdb.d/${SERVICE_ID}-${MYSQL_DATABASE}.sql'
-      - "com.centurylinklabs.watchtower.enable=true"
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump ${MYSQL_DATABASE} > /docker-entrypoint-initdb.d/${DEPLOY_SERVICE_ID}-${MYSQL_DATABASE}.sql'
 
   ghost:
     image: ghcr.io/coto-studio/ghost-s3:latest
@@ -55,24 +54,23 @@ services:
       update_config:
         order: start-first
       labels:
-        - "com.centurylinklabs.watchtower.enable=true"
         # Enable Traefik
         - "traefik.enable=true"
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Ghost Config
-        - "traefik.http.services.${SERVICE_ID}-ghost.loadbalancer.server.port=2368"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-http.rule=Host(`${GHOST_DOMAIN}`)"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-http.entrypoints=http"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-http.middlewares=https-redirect"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-https.rule=Host(`${GHOST_DOMAIN}`)"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-https.entrypoints=https"
-        - "traefik.http.routers.${SERVICE_ID}-ghost-https.tls.certresolver=le"
+        - "traefik.http.services.${DEPLOY_SERVICE_ID}-ghost.loadbalancer.server.port=2368"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-http.rule=Host(`${GHOST_DOMAIN}`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-http.entrypoints=http"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-http.middlewares=https-redirect"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-https.rule=Host(`${GHOST_DOMAIN}`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-https.entrypoints=https"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-ghost-https.tls.certresolver=le"
         # www Redirect
-        - "traefik.http.routers.${SERVICE_ID}-https.middlewares=${SERVICE_ID}-www-redirect"
-        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.regex=^https?://www.${GHOST_DOMAIN}/(.*)"
-        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.replacement=https://${GHOST_DOMAIN}/$${1}"
-        - "traefik.http.middlewares.${SERVICE_ID}-www-redirect.redirectregex.permanent=true"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-https.middlewares=${DEPLOY_SERVICE_ID}-www-redirect"
+        - "traefik.http.middlewares.${DEPLOY_SERVICE_ID}-www-redirect.redirectregex.regex=^https?://www.${GHOST_DOMAIN}/(.*)"
+        - "traefik.http.middlewares.${DEPLOY_SERVICE_ID}-www-redirect.redirectregex.replacement=https://${GHOST_DOMAIN}/$${1}"
+        - "traefik.http.middlewares.${DEPLOY_SERVICE_ID}-www-redirect.redirectregex.permanent=true"
 
   proxy:
     image: ghcr.io/coto-studio/b2-proxy:latest
@@ -93,19 +91,18 @@ services:
       - traefik-public
     deploy:
       labels:
-        - "com.centurylinklabs.watchtower.enable=true"
         # Enable Traefik
         - "traefik.enable=true"
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Proxy Config
-        - "traefik.http.services.${SERVICE_ID}-s3.loadbalancer.server.port=80"
-        - "traefik.http.routers.${SERVICE_ID}-s3-http.rule=Host(`static.coto.studio`)"
-        - "traefik.http.routers.${SERVICE_ID}-s3-http.entrypoints=http"
-        - "traefik.http.routers.${SERVICE_ID}-s3-http.middlewares=https-redirect"
-        - "traefik.http.routers.${SERVICE_ID}-s3-https.rule=Host(`static.coto.studio`)"
-        - "traefik.http.routers.${SERVICE_ID}-s3-https.entrypoints=https"
-        - "traefik.http.routers.${SERVICE_ID}-s3-https.tls.certresolver=le"
+        - "traefik.http.services.${DEPLOY_SERVICE_ID}-s3.loadbalancer.server.port=80"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.entrypoints=http"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.middlewares=https-redirect"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.entrypoints=https"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.tls.certresolver=le"
 
   backup:
     image: ghcr.io/offen/docker-volume-backup:v2
@@ -128,8 +125,6 @@ services:
       NOTIFICATION_LEVEL: "info"
       BACKUP_RETENTION_DAYS: "7"
       BACKUP_PRUNING_LEEWAY: "30s"
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
 
 volumes:
   db_data:
