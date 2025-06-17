@@ -1,0 +1,45 @@
+name: Update ghost-beta-site image on schedule
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+jobs:
+  check-base-image:
+    runs-on: ubuntu-latest
+    outputs:
+      rebuild: ${{ steps.baseupdatecheck.outputs.needs-updating == 'true' }}
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: https://ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker Image Update Checker
+        id: baseupdatecheck
+        uses: lucacome/docker-image-update-checker@v2
+        with:
+          base-image: ghost:5-alpine
+          image: ghcr.io/coto-studio/ghost-s3 # update for your image
+          platforms: linux/amd64,linux/arm64
+
+  # only execute subsequent steps if an update is actually NEEDED.
+  cs-ghost-docker-deploy:
+    needs: check-base-image
+    if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
+    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
+    secrets: inherit
+    with:
+      vault-id: op://Coto.Studio - Clients
+      item-id: mxq36tc4gvdzr34vv6otdqhzsy
+      image-name: ghcr.io/coto-studio/ghost-s3
+      stack-name: coto-studio

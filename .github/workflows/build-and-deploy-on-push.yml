@@ -1,0 +1,19 @@
+name: Build, and Deploy on Push
+
+on:
+  push:
+    branches:
+      - "main"
+
+permissions:
+  packages: write
+
+jobs:
+  cs-ghost-docker-deploy:
+    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
+    secrets: inherit
+    with:
+      vault-id: op://Coto.Studio - Clients
+      item-id: mxq36tc4gvdzr34vv6otdqhzsy
+      image-name: ghcr.io/coto-studio/ghost-s3
+      stack-name: coto-studio
