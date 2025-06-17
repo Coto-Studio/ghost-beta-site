@@ -11,7 +11,7 @@ permissions:
 jobs:
   cs-ghost-docker-deploy:
     name: CS Workflow
-    uses: ./.github/workflows/ghost-image-build-and-deploy.yml
+    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
     secrets: inherit
     with:
       vault-id: op://Coto.Studio - Clients
