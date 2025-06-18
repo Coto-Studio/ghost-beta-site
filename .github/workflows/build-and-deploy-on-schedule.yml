@@ -1,4 +1,4 @@
-name: Update ghost-beta-site image on schedule
+name: Ghost Site - Build & Deploy on Schedule
 
 on:
   schedule:
@@ -33,13 +33,25 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
   # only execute subsequent steps if an update is actually NEEDED.
-  cs-ghost-docker-deploy:
-    needs: check-base-image
+  cs-ghost-imgae-build:
     if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
-    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
-    secrets: inherit
+    name: CS Workflow
+    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build.yml@main
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     with:
-      vault-id: op://Coto.Studio - Clients
+      image-name: ghcr.io/coto-studio/ghost-beta-site
+      stack-name: coto-studio
+
+  cs-docker-stack-deploy:
+    if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
+    name: CS Workflow
+    needs: cs-ghost-imgae-build
+    uses: Coto-Studio/workflows/.github/workflows/docker-stack-deploy.yml@main
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+    with:
+      vault-id: Coto.Studio - Clients
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghcr.io/coto-studio/ghost-s3
+      image-name: ghcr.io/coto-studio/ghost-beta-site
       stack-name: coto-studio
