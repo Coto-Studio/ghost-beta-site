@@ -15,9 +15,10 @@ jobs:
     uses: Coto-Studio/workflows/.github/workflows/ghost-image-build-and-deploy.yml@main
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WORKFLOWS_PAT: ${{ secrets.WORKFLOWS_PAT }}
     with:
       vault-id: op://Coto.Studio - Clients
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghcr.io/coto-studio/ghost-s3
+      image-name: ghcr.io/coto-studio/ghost-beta-site
       stack-name: coto-studio
       repo-name: coto-studio/ghost-beta-site
