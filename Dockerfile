@@ -1,6 +1,6 @@
 FROM ghost:5-alpine
 
-# LABEL org.opencontainers.image.source="https://github.com/Coto-Studio/ghost-dandelion-theme.git"
+LABEL org.opencontainers.image.source = "https://github.com/Coto-Studio/ghost-beta-site"
 
 RUN mkdir -p content/adapters/storage \
     && npm install ghost-storage-adapter-s3@2.8.0 \
