@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   check-base-image:
+    name: Check Base Image
     runs-on: ubuntu-latest
     outputs:
       rebuild: ${{ steps.baseupdatecheck.outputs.needs-updating == 'true' }}
@@ -34,6 +35,7 @@ jobs:
 
   # only execute subsequent steps if an update is actually NEEDED.
   build-and-deploy:
+    name: Build & Deploy
     if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
     uses: ./.github/workflows/build-and-deploy.yml
     secrets:
