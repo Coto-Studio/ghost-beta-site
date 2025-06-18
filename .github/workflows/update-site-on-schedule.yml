@@ -33,21 +33,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
   # only execute subsequent steps if an update is actually NEEDED.
-  cs-ghost-imgae-build:
+  build-and-deploy:
     if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
-    name: CS Workflow
-    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build.yml@main
-    secrets:
-      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-    with:
-      image-name: ghcr.io/coto-studio/ghost-beta-site
-      stack-name: coto-studio
-
-  cs-docker-stack-deploy:
-    if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
-    name: CS Workflow
-    needs: cs-ghost-imgae-build
-    uses: Coto-Studio/workflows/.github/workflows/docker-stack-deploy.yml@main
+    uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     with:
