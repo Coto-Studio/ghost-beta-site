@@ -13,7 +13,7 @@ jobs:
     name: Check Base Image
     runs-on: ubuntu-latest
     outputs:
-      rebuild: ${{ steps.baseupdatecheck.outputs.needs-updating == 'true' }}
+      rebuild: ${{ steps.baseupdatecheck.outputs.needs-updating }}
     steps:
       - name: OP Load secrets
         id: op-load-secrets
@@ -44,7 +44,8 @@ jobs:
   # only execute subsequent steps if an update is actually NEEDED.
   build-and-deploy:
     name: Build & Deploy
-    if: ${{needs.check-base-image.outputs.rebuild == 'true' }}
+    needs: check-base-image
+    if: ${{ needs.check-base-image.outputs.rebuild }}
     uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
