@@ -97,10 +97,10 @@ services:
         - "traefik.constraint-label=traefik-public"
         # Proxy Config
         - "traefik.http.services.${DEPLOY_SERVICE_ID}-s3.loadbalancer.server.port=80"
-        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.rule=Host(`${STORAGE_ASSET_DOMAIN}`)"
         - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.entrypoints=http"
         - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-http.middlewares=https-redirect"
-        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.rule=Host(`static.coto.studio`)"
+        - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.rule=Host(`${STORAGE_ASSET_DOMAIN}`)"
         - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.entrypoints=https"
         - "traefik.http.routers.${DEPLOY_SERVICE_ID}-s3-https.tls.certresolver=le"
 
