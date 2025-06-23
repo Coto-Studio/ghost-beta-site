@@ -31,7 +31,6 @@ jobs:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     with:
       image-name: ${{ inputs.image-name }}
-      stack-name: ${{ inputs.stack-name }}
 
   cs-docker-stack-deploy:
     name: CS Workflow
