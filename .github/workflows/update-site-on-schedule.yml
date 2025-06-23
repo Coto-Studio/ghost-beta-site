@@ -35,7 +35,7 @@ jobs:
         id: baseupdatecheck
         uses: lucacome/docker-image-update-checker@v2
         with:
-          base-image: ghost:5-alpine
+          base-image: ghcr.io/coto-studio/ghost-s3
           image: ghcr.io/coto-studio/ghost-beta-site # update for your image
           platforms: linux/amd64,linux/arm64
 
