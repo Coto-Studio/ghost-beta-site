@@ -26,7 +26,7 @@ permissions:
 jobs:
   cs-ghost-imgae-build:
     name: CS Workflow
-    uses: Coto-Studio/workflows/.github/workflows/ghost-image-build.yml@main
+    uses: Coto-Studio/workflows/.github/workflows/docker-build-image.yml@main
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
     with:

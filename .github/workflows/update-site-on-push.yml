@@ -18,5 +18,5 @@ jobs:
     with:
       vault-id: Coto.Studio - Clients
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghcr.io/coto-studio/ghost-beta-site
+      image-name: ghost-beta-site
       stack-name: coto-studio

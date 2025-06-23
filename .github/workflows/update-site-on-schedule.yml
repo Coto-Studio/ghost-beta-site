@@ -24,8 +24,6 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           WORKFLOWS_PAT: "op://Coto.Studio - Deploy/dvdxlvxhkphndlusdv7gecvenq/credential"
 
-      - uses: actions/checkout@v4
-
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -52,5 +50,5 @@ jobs:
     with:
       vault-id: Coto.Studio - Clients
       item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghcr.io/coto-studio/ghost-beta-site
+      image-name: ghost-beta-site
       stack-name: coto-studio
