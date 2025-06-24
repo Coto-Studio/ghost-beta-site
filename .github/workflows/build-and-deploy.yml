@@ -26,20 +26,13 @@ permissions:
 jobs:
   cs-ghost-imgae-build:
     name: CS Workflow
-    uses: Coto-Studio/workflows/.github/workflows/docker-build-image.yml@main
+    uses: Coto-Studio/workflows/.github/workflows/docker-build-image-v2.yml@main
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-    with:
-      image-name: ${{ inputs.image-name }}
 
   cs-docker-stack-deploy:
     name: CS Workflow
     needs: cs-ghost-imgae-build
-    uses: Coto-Studio/workflows/.github/workflows/docker-stack-deploy.yml@main
+    uses: Coto-Studio/workflows/.github/workflows/docker-stack-deploy-v2.yml@main
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-    with:
-      vault-id: ${{ inputs.vault-id }}
-      item-id: ${{ inputs.item-id }}
-      image-name: ${{ inputs.image-name }}
-      stack-name: ${{ inputs.stack-name }}

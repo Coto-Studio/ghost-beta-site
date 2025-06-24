@@ -10,45 +10,16 @@ permissions:
 
 jobs:
   check-base-image:
-    name: Check Base Image
-    runs-on: ubuntu-latest
-    outputs:
-      rebuild: ${{ steps.baseupdatecheck.outputs.needs-updating }}
-    steps:
-      - name: OP Load secrets
-        id: op-load-secrets
-        uses: 1password/load-secrets-action@v2
-        with:
-          export-env: false
-        env:
-          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          WORKFLOWS_PAT: "op://Coto.Studio - Deploy/dvdxlvxhkphndlusdv7gecvenq/credential"
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: https://ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ steps.op-load-secrets.outputs.WORKFLOWS_PAT }}
-
-      - name: Docker Image Update Checker
-        id: baseupdatecheck
-        uses: lucacome/docker-image-update-checker@v2
-        with:
-          base-image: ghcr.io/coto-studio/ghost-s3
-          image: ghcr.io/coto-studio/ghost-beta-site # update for your image
-          platforms: linux/amd64,linux/arm64
+    name: CS Workflow
+    uses: Coto-Studio/workflows/.github/workflows/check-base-image.yml@main
+    secrets:
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
 
   # only execute subsequent steps if an update is actually NEEDED.
   build-and-deploy:
     name: Build & Deploy
     needs: check-base-image
     if: ${{ needs.check-base-image.outputs.rebuild }}
-    uses: ./.github/workflows/build-and-deploy.yml
+    uses: ./.github/workflows/build-image.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-    with:
-      vault-id: Coto.Studio - Clients
-      item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghost-beta-site
-      stack-name: coto-studio

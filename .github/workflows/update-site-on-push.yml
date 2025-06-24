@@ -15,8 +15,3 @@ jobs:
     uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-    with:
-      vault-id: Coto.Studio - Clients
-      item-id: mxq36tc4gvdzr34vv6otdqhzsy
-      image-name: ghost-beta-site
-      stack-name: coto-studio
