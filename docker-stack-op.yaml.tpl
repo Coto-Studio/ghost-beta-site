@@ -22,7 +22,7 @@ services:
       - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
 
   ghost:
-    image: ghcr.io/coto-studio/ghost-beta-site:latest
+    image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/containerImage }}:latest
     networks:
       - ghost
       - traefik-public
