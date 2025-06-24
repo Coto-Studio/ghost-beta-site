@@ -20,6 +20,6 @@ jobs:
     name: Build & Deploy
     needs: check-base-image
     if: ${{ needs.check-base-image.outputs.rebuild }}
-    uses: ./.github/workflows/build-image.yml
+    uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
