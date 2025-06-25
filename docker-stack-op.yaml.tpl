@@ -121,7 +121,7 @@ services:
       AWS_SECRET_ACCESS_KEY: {{ op://${VAULT_ID}/$ITEM_ID/storage/secretAccessKey }}
       AWS_ENDPOINT: {{ op://${VAULT_ID}/$ITEM_ID/storage/endpoint }}
       GPG_PASSPHRASE: {{ op://${VAULT_ID}/$ITEM_ID/storage/gpgPassphrase }}
-      NOTIFICATION_URLS: "pushover://shoutrrr:{{ op://Coto.Studio - Deploy/Pushover/credential }}@{{ op://Coto.Studio - Deploy/Pushover/Docker Swarm/API Token }}/"
+      NOTIFICATION_URLS: "pushover://shoutrrr:{{ op://Coto.Studio - Deploy/Pushover/Docker Swarm/API Token }}@{{ op://Coto.Studio - Deploy/Pushover/credential }}/"
       NOTIFICATION_LEVEL: "info"
       BACKUP_RETENTION_DAYS: "7"
       BACKUP_PRUNING_LEEWAY: "30s"
