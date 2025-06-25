@@ -4,7 +4,7 @@ services:
     image: mariadb:11
     environment:
       MARIADB_USER: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
-      MARIADB_PASSWORD: {{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}
+      MARIADB_PASSWORD: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
       MARIADB_DATABASE: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
     networks:
@@ -34,7 +34,7 @@ services:
       database__connection__host: db
       database__connection__port: 3306
       database__connection__user: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
-      database__connection__password: {{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}
+      database__connection__password: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
       database__connection__database: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
       mail__transport: SMTP
       mail__options__service: {{ op://${VAULT_ID}/$ITEM_ID/mail/service }}
