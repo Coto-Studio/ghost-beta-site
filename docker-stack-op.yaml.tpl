@@ -20,6 +20,7 @@ services:
       retries: 3
     labels:
       - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
+      - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}_db
 
   ghost:
     image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/containerImage }}:latest
@@ -114,6 +115,7 @@ services:
         limits:
           memory: 100M
     environment:
+      EXEC_LABEL: {{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}_db
       BACKUP_SOURCES: "/backups"
       AWS_S3_PATH: "backups/"
       AWS_S3_BUCKET_NAME: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
