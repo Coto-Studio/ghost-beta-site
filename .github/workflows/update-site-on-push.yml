@@ -12,6 +12,7 @@ permissions:
 jobs:
   build-and-deploy:
     name: Ghost Site
+    needs: test-and-lint
     uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}

@@ -19,7 +19,10 @@ jobs:
   build-and-deploy:
     name: Build & Deploy
     needs: check-base-image
-    if: ${{ needs.check-base-image.outputs.rebuild }}
+    if: ${{ needs.check-base-image.outputs.rebuild == 'true' }}
     uses: ./.github/workflows/build-and-deploy.yml
     secrets:
       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - run: echo 'rebluid - ${{ needs.check-base-image.outputs.rebuild }}'
