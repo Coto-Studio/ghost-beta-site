@@ -19,8 +19,8 @@ services:
       timeout: 5s
       retries: 3
     labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
-      - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}_db
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
+      - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
   ghost:
     image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/containerImage }}:latest
@@ -60,18 +60,18 @@ services:
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Ghost Config
-        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.entrypoints=http"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.middlewares=https-redirect"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-https.entrypoints=https"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-https.tls.certresolver=le"
+        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.entrypoints=http"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.middlewares=https-redirect"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.entrypoints=https"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.certresolver=le"
         # www Redirect
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-https.middlewares={{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-www-redirect"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-www-redirect.redirectregex.regex=^https?://www.{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/(.*)"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-www-redirect.redirectregex.replacement=https://{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/$${1}"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-www-redirect.redirectregex.permanent=true"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.middlewares={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect"
+        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.regex=^https?://www.{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/(.*)"
+        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.replacement=https://{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/$${1}"
+        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.permanent=true"
 
   proxy:
     image: ghcr.io/coto-studio/b2-proxy:latest
@@ -97,13 +97,13 @@ services:
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Proxy Config
-        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.entrypoints=http"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.middlewares=https-redirect"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-https.entrypoints=https"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-https.tls.certresolver=le"
+        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.entrypoints=http"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.middlewares=https-redirect"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.entrypoints=https"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.certresolver=le"
 
   backup:
     image: ghcr.io/offen/docker-volume-backup:v2
@@ -115,7 +115,7 @@ services:
         limits:
           memory: 100M
     environment:
-      EXEC_LABEL: {{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}_db
+      EXEC_LABEL: {{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
       BACKUP_SOURCES: "/backups"
       AWS_S3_PATH: "backups/"
       AWS_S3_BUCKET_NAME: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
