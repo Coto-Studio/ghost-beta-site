@@ -23,7 +23,7 @@ services:
       - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
   ghost:
-    image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/containerImage }}:latest
+    image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
     networks:
       - ghost
       - traefik-public
