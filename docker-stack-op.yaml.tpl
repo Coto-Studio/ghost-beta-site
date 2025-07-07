@@ -60,7 +60,7 @@ services:
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Ghost Config
-        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost.loadbalancer.server.port=2368"
+        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.entrypoints=http"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-ghost-http.middlewares=https-redirect"
@@ -97,7 +97,7 @@ services:
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Proxy Config
-        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3.loadbalancer.server.port=80"
+        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.entrypoints=http"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/serviceID }}-s3-http.middlewares=https-redirect"
