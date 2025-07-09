@@ -1,4 +1,4 @@
-name: Ghost Site - Build & Deploy on Push
+name: Beta Site - Build & Deploy on Push
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Ghost Site - Build & Deploy on Schedule
+name: Beta Site - Build & Deploy on Schedule
 
 on:
   schedule:
