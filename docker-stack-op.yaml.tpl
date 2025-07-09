@@ -22,8 +22,8 @@ services:
       - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
       - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
-  ghost:
-    image: ghcr.io/coto-studio/{{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
+  app:
+    image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
     networks:
       - ghost
       - traefik-public
@@ -59,19 +59,35 @@ services:
         - "traefik.enable=true"
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
-        # Ghost Config
+        ## Service
         - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
+        ## Route HTTP
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.entrypoints=http"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-http.middlewares=https-redirect"
+        ## Route HTTPS
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.entrypoints=https"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.certresolver=le"
-        # www Redirect
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.middlewares={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.regex=^https?://www.{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/(.*)"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.replacement=https://{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}/$${1}"
-        - "traefik.http.middlewares.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-www-redirect.redirectregex.permanent=true"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain/main }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.service={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}"
+        ## Route HTTP (domain2) 
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain2/${GIT_BRANCH:-main} }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-http.entrypoints=http"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-http.middlewares=https-redirect"
+        ## Route HTTPS (domain2)
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain2/${GIT_BRANCH:-main} }}`)"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.entrypoints=https"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.certresolver=le"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain2/main }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain2/cert }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.middlewares=ghost-beta-redirect"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.service={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}"
+        # Redirect: ghost.nelsonroberto.com -> ghost.coto.studio
+        - "traefik.http.middlewares.ghost-beta-redirect.redirectregex.regex=^https?://{{ op://${VAULT_ID}/$ITEM_ID/domain2/main }}/(.*)"
+        - "traefik.http.middlewares.ghost-beta-redirect.redirectregex.replacement=https://{{ op://${VAULT_ID}/$ITEM_ID/domain/main }}/$${1}"
+        - "traefik.http.middlewares.ghost-beta-redirect.redirectregex.permanent=true"
 
   proxy:
     image: ghcr.io/coto-studio/b2-proxy:latest
