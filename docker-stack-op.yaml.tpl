@@ -1,25 +1,25 @@
 ---
 services:
   db:
-    image: mariadb:11
+    image: mysql:8
     environment:
-      MARIADB_USER: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
-      MARIADB_PASSWORD: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
-      MARIADB_DATABASE: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
-      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+      MYSQL_USER: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
+      MYSQL_PASSWORD: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
+      MYSQL_DATABASE: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
+      MYSQL_ROOT_PASSWORD: {{ op://${VAULT_ID}/$ITEM_ID/mysql/rootPassword }}
     networks:
       - ghost
     volumes:
       - db_data:/var/lib/mysql
       - backups:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 3
     labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c 'mariadb-dump {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
+      - docker-volume-backup.archive-pre=/bin/sh -c 'mysqldump -uroot -p"{{ op://${VAULT_ID}/$ITEM_ID/mysql/rootPassword }}" {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }} > /docker-entrypoint-initdb.d/{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}.sql'
       - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
   app:
@@ -122,7 +122,7 @@ services:
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.certresolver=le"
 
   backup:
-    image: ghcr.io/offen/docker-volume-backup:v2
+    image: ghcr.io/coto-studio/docker-volume-backup:v2
     volumes:
       - backups:/backups:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
