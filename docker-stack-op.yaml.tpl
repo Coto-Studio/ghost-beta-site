@@ -6,7 +6,7 @@ services:
       MYSQL_USER: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
       MYSQL_PASSWORD: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
       MYSQL_DATABASE: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
-      MYSQL_ROOT_PASSWORD: {{ op://${VAULT_ID}/$ITEM_ID/mysql/rootPassword }}
+      MYSQL_ROOT_PASSWORD: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/rootPassword }}"
     networks:
       - ghost
     volumes:
