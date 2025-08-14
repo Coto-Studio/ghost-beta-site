@@ -23,8 +23,8 @@ services:
       - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
   app:
-    image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
-    networks:
+    image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:6
+    fnetworks:
       - ghost
       - traefik-public
     environment:
@@ -133,11 +133,11 @@ services:
     environment:
       EXEC_LABEL: {{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
       BACKUP_SOURCES: "/backups"
-      AWS_S3_PATH: "backups/"
-      AWS_S3_BUCKET_NAME: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
-      AWS_ACCESS_KEY_ID: {{ op://${VAULT_ID}/$ITEM_ID/storage/accessKeyId }}
-      AWS_SECRET_ACCESS_KEY: {{ op://${VAULT_ID}/$ITEM_ID/storage/secretAccessKey }}
-      AWS_ENDPOINT: {{ op://${VAULT_ID}/$ITEM_ID/storage/endpoint }}
+      AWS_S3_PATH: "coto-v3/{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}/{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}"
+      AWS_S3_BUCKET_NAME: {{ op://vwf67dktoxzt77frbh257llrpu/fdhockv5zsg6fzda3iig5zm7dq/storage/bucket }}
+      AWS_ACCESS_KEY_ID: {{ op://vwf67dktoxzt77frbh257llrpu/fdhockv5zsg6fzda3iig5zm7dq/storage/accessKeyId }}
+      AWS_SECRET_ACCESS_KEY: {{ op://vwf67dktoxzt77frbh257llrpu/fdhockv5zsg6fzda3iig5zm7dq/storage/secretAccessKey }}
+      AWS_ENDPOINT: {{ op://vwf67dktoxzt77frbh257llrpu/fdhockv5zsg6fzda3iig5zm7dq/storage/endpoint }}
       GPG_PASSPHRASE: {{ op://${VAULT_ID}/$ITEM_ID/storage/gpgPassphrase }}
       NOTIFICATION_URLS: "pushover://shoutrrr:{{ op://Coto.Studio - Deploy/Pushover/Docker Swarm/API Token }}@{{ op://Coto.Studio - Deploy/Pushover/credential }}/"
       NOTIFICATION_LEVEL: "info"
