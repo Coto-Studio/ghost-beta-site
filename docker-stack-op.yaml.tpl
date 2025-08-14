@@ -24,7 +24,7 @@ services:
 
   app:
     image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
-    fnetworks:
+    networks:
       - ghost
       - traefik-public
     environment:
@@ -113,13 +113,15 @@ services:
         - "traefik.docker.network=traefik-public"
         - "traefik.constraint-label=traefik-public"
         # Proxy Config
-        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3.loadbalancer.server.port={{ op://${VAULT_ID}/$ITEM_ID/deploy/port }}"
+        - "traefik.http.services.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3.loadbalancer.server.port=80"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.entrypoints=http"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-http.middlewares=https-redirect"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.entrypoints=https"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.certresolver=le"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
 
   backup:
     image: ghcr.io/coto-studio/docker-volume-backup:v2
