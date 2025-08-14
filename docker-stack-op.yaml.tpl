@@ -23,7 +23,7 @@ services:
       - docker-volume-backup.exec-label={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}_db
 
   app:
-    image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:6
+    image: {{ op://${VAULT_ID}/$ITEM_ID/deploy/image }}:latest
     fnetworks:
       - ghost
       - traefik-public
