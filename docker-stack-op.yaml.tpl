@@ -36,6 +36,7 @@ services:
       database__connection__user: {{ op://${VAULT_ID}/$ITEM_ID/mysql/user }}
       database__connection__password: "{{ op://${VAULT_ID}/$ITEM_ID/mysql/password }}"
       database__connection__database: {{ op://${VAULT_ID}/$ITEM_ID/mysql/database }}
+      database__pool__min: 0
       mail__transport: SMTP
       mail__options__service: {{ op://${VAULT_ID}/$ITEM_ID/mail/service }}
       mail__options__host: {{ op://${VAULT_ID}/$ITEM_ID/mail/host }}
