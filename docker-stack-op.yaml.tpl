@@ -70,8 +70,8 @@ services:
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain/${GIT_BRANCH:-main} }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.entrypoints=https"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.certresolver=le"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain/main }}"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls-dns.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain/main }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.tls-dns.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-https.service={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}"
         ## Route HTTP (domain2) 
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-http.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain2/${GIT_BRANCH:-main} }}`)"
@@ -81,8 +81,8 @@ services:
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/domain2/${GIT_BRANCH:-main} }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.entrypoints=https"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.certresolver=le"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain2/main }}"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain2/cert }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls-dns.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/domain2/main }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.tls-dns.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain2/cert }}"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.middlewares=ghost-beta-redirect"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-domain2-https.service={{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}"
         # Redirect: ghost.nelsonroberto.com -> ghost.coto.studio
@@ -121,8 +121,8 @@ services:
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.rule=Host(`{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}`)"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.entrypoints=https"
         - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.certresolver=le"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
-        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls-dns.domains[0].main={{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
+        - "traefik.http.routers.{{ op://${VAULT_ID}/$ITEM_ID/deploy/stack }}-{{ op://${VAULT_ID}/$ITEM_ID/deploy/service }}-s3-https.tls-dns.domains[0].sans=*.{{ op://${VAULT_ID}/$ITEM_ID/domain/cert }}"
 
   backup:
     image: ghcr.io/coto-studio/docker-volume-backup:v2
