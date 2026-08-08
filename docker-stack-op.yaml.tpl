@@ -50,11 +50,36 @@ services:
       storage__s3__assetHost: "https://{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
       storage__s3__bucket: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
       storage__s3__endpoint: {{ op://${VAULT_ID}/$ITEM_ID/storage/endpoint }}
-    depends_on:
-      - db
+    # `depends_on` is deliberately omitted: Swarm ignores it (it is Compose-only), so it
+    # never provided the db-before-app ordering it appeared to. Startup ordering is
+    # handled by restart_policy below.
+    healthcheck:
+      # Uses `node`, which is always present in the Ghost image; curl/wget are not.
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:2368/ghost/api/admin/site/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      # start_period must outlast a full migration batch. Without a healthcheck Swarm
+      # treats "process started" as "healthy" and can converge away from a container
+      # that is still migrating, stranding the lock row in `migrations_lock`.
+      start_period: 300s
+      interval: 15s
+      timeout: 10s
+      retries: 3
     deploy:
       update_config:
-        order: start-first
+        # stop-first: never run two Ghost versions against one database. Under
+        # start-first the outgoing container kept serving while the incoming one died
+        # during its migration, so four consecutive failed deploys went unnoticed.
+        order: stop-first
+        failure_action: pause
+        monitor: 300s
+      restart_policy:
+        # Back off instead of hammering a restart every ~7s when boot fails.
+        condition: on-failure
+        delay: 30s
+        window: 600s
       labels:
         # Enable Traefik
         - "traefik.enable=true"
