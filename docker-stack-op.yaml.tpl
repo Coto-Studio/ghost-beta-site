@@ -50,6 +50,7 @@ services:
       storage__s3__assetHost: "https://{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
       storage__s3__bucket: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
       storage__s3__endpoint: {{ op://${VAULT_ID}/$ITEM_ID/storage/endpoint }}
+      storage__s3__region: {{ op://${VAULT_ID}/$ITEM_ID/storage/region }}
     depends_on:
       - db
     deploy:
