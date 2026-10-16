@@ -45,6 +45,8 @@ services:
       mail__options__auth__user: {{ op://${VAULT_ID}/$ITEM_ID/mail/user }}
       mail__options__auth__pass: {{ op://${VAULT_ID}/$ITEM_ID/mail/password }}
       storage__active: s3
+      storage__media: s3
+      storage__files: s3
       storage__s3__accessKeyId: {{ op://${VAULT_ID}/$ITEM_ID/storage/accessKeyId }}
       storage__s3__secretAccessKey: {{ op://${VAULT_ID}/$ITEM_ID/storage/secretAccessKey }}
       storage__s3__assetHost: "https://{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
