@@ -45,11 +45,14 @@ services:
       mail__options__auth__user: {{ op://${VAULT_ID}/$ITEM_ID/mail/user }}
       mail__options__auth__pass: {{ op://${VAULT_ID}/$ITEM_ID/mail/password }}
       storage__active: s3
+      storage__media: s3
+      storage__files: s3
       storage__s3__accessKeyId: {{ op://${VAULT_ID}/$ITEM_ID/storage/accessKeyId }}
       storage__s3__secretAccessKey: {{ op://${VAULT_ID}/$ITEM_ID/storage/secretAccessKey }}
       storage__s3__assetHost: "https://{{ op://${VAULT_ID}/$ITEM_ID/storage/domain }}"
       storage__s3__bucket: {{ op://${VAULT_ID}/$ITEM_ID/storage/bucket }}
       storage__s3__endpoint: {{ op://${VAULT_ID}/$ITEM_ID/storage/endpoint }}
+      storage__s3__region: {{ op://${VAULT_ID}/$ITEM_ID/storage/region }}
     # `depends_on` is deliberately omitted: Swarm ignores it (it is Compose-only), so it
     # never provided the db-before-app ordering it appeared to. Startup ordering is
     # handled by restart_policy below.
