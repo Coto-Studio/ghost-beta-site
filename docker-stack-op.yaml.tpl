@@ -60,8 +60,9 @@ services:
       # Uses `node`, which is always present in the Ghost image; curl/wget are not.
       # Ghost 301s plain-HTTP requests to its https `url`. Following that redirect sends
       # the check out through Traefik, which only routes to healthy tasks, so it could
-      # never pass. Don't follow it: a 2xx or that 3xx means Ghost is up (it serves 503
-      # while booting or migrating).
+      # never pass. Don't follow it: a 2xx or that 3xx means Ghost's HTTP stack is up.
+      # Whether Ghost answers 503 until migrations finish is unverified, so start_period
+      # may be the only migration protection.
       test:
         - CMD
         - node
@@ -83,8 +84,10 @@ services:
         failure_action: pause
         monitor: 300s
       restart_policy:
-        # Back off instead of hammering a restart every ~7s when boot fails.
-        condition: on-failure
+        # `any`, not `on-failure`: when Swarm kills an unhealthy task, Ghost shuts down
+        # gracefully and exits 0, which on-failure ignores, leaving the service at 0/1.
+        # The delay backs off instead of hammering a restart every ~7s when boot fails.
+        condition: any
         delay: 30s
         window: 600s
       labels:
