@@ -58,11 +58,15 @@ services:
     # handled by restart_policy below.
     healthcheck:
       # Uses `node`, which is always present in the Ghost image; curl/wget are not.
+      # Ghost 301s plain-HTTP requests to its https `url`. Following that redirect sends
+      # the check out through Traefik, which only routes to healthy tasks, so it could
+      # never pass. Don't follow it: a 2xx or that 3xx means Ghost is up (it serves 503
+      # while booting or migrating).
       test:
         - CMD
         - node
         - -e
-        - "fetch('http://127.0.0.1:2368/ghost/api/admin/site/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+        - "fetch('http://127.0.0.1:2368/ghost/api/admin/site/', { redirect: 'manual' }).then(r => process.exit(r.status < 400 ? 0 : 1)).catch(() => process.exit(1))"
       # start_period must outlast a full migration batch. Without a healthcheck Swarm
       # treats "process started" as "healthy" and can converge away from a container
       # that is still migrating, stranding the lock row in `migrations_lock`.
